@@ -2,8 +2,7 @@
 ---
 galaxy_info:
   author: Alexander Braverman Masis
-  description: rhconsulting rake scripts
-  company: Central CI and PNT DevOps
+  description: Ansible role to import and export settings from ManageIQ
   license: GPLv2
   min_ansible_version: 2.0
 dependencies: []
