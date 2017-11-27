@@ -1,0 +1,27 @@
+# Standards: 1.4
+---
+- name: list all directories to send
+  find:
+    paths: "{{ local_path }}"
+    file_type: directory
+    patterns: "*"
+  register: dir_files
+
+- name: "create {{ remote_path }}"
+  file:
+    path: "{{ remote_path }}"
+    state: directory
+    mode: 0755
+    recurse: yes
+  when: dir_files.matched|int != 0
+
+- name: copy the import
+  synchronize:
+    mode: push
+    src: "{{ local_path }}"
+    dest: "{{ remote_path }}"
+  when: dir_files.matched|int != 0
+
+- name: "import {{ object_type }} from {{ remote_path }}"
+  shell: "miqimport {{ object_type }} {{ additional_params }} {{ remote_path }}"
+  when: dir_files.matched|int != 0

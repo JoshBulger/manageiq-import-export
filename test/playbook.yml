@@ -1,0 +1,18 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: create keys
+      manageiq_key:
+        fetch_key: false
+    - name: create simple internal database
+      manageiq_database:
+        state: present
+    - name: wait for initialization to complete
+      pause:
+        minutes: 3
+    - name: export settings
+      include_role:
+        name: manageiq-import-export
+      vars:
+        operation: export

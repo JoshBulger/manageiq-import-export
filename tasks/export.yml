@@ -1,0 +1,27 @@
+# Standards: 1.4
+---
+- name: "create {{ remote_path }}"
+  file:
+    path: "{{ export_path }}"
+    state: directory
+    mode: 0755
+    recurse: yes
+
+- name: "create {{ local_path }}"
+  delegate_to: localhost
+  file:
+    path: "{{ local_path }}"
+    state: directory
+    mode: 0755
+    recurse: yes
+
+- name: "export {{ object_type }} to {{ remote_path }}"
+  shell: "miqexport {{ object_type }} {{ additional_params }} {{ export_path }}"
+  args:
+    creates: "{{ remote_path }}/{{ object_type }}.yml"
+
+- name: fetch the export
+  synchronize:
+    mode: pull
+    src: "{{ remote_path }}"
+    dest: "{{ local_path }}"

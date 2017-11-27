@@ -1,0 +1,8 @@
+---
+name: manageiq-import-export
+title: ManageIQ Import\Export Ansible role
+maintainer: Alexander Braverman Masis <abraverm@redhat.com>
+summary: ManageIQ settings management using Ansible and rhconsoulting scripts
+version: 0.0.1
+supports:
+  - os-family: redhat
