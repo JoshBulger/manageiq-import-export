@@ -6,3 +6,6 @@
 
 # Bundle
 Gemfile.lock
+
+# Test
+test/tmp

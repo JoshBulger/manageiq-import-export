@@ -16,3 +16,9 @@
         name: manageiq-import-export
       vars:
         operation: export
+    - name: import settings
+      include_role:
+        name: manageiq-import-export
+      vars:
+        operation: import
+

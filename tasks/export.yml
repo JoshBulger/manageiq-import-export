@@ -1,22 +1,23 @@
 # Standards: 1.4
 ---
-- name: "create {{ remote_path }}"
+- name: "create {{ remote_path }} on {{ ansible_hostname }}"
   file:
-    path: "{{ export_path }}"
+    path: "{{ remote_path }}"
     state: directory
     mode: 0755
     recurse: yes
 
-- name: "create {{ local_path }}"
-  delegate_to: localhost
-  file:
+- name: "create {{ local_path }} on localhost"
+  become: false
+  local_action:
+    module: file
     path: "{{ local_path }}"
     state: directory
     mode: 0755
     recurse: yes
 
 - name: "export {{ object_type }} to {{ remote_path }}"
-  shell: "miqexport {{ object_type }} {{ additional_params }} {{ export_path }}"
+  shell: "miqexport {{ object_type }} {{ additional_params }} {{ remote_path }}"
   args:
     creates: "{{ remote_path }}/{{ object_type }}.yml"
 

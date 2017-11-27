@@ -1,27 +1,27 @@
 # Standards: 1.4
 ---
 - name: list all directories to send
-  find:
+  become: false
+  local_action:
+    module: find
     paths: "{{ local_path }}"
     file_type: directory
     patterns: "*"
   register: dir_files
 
-- name: "create {{ remote_path }}"
-  file:
-    path: "{{ remote_path }}"
-    state: directory
-    mode: 0755
-    recurse: yes
-  when: dir_files.matched|int != 0
-
-- name: copy the import
-  synchronize:
-    mode: push
-    src: "{{ local_path }}"
-    dest: "{{ remote_path }}"
-  when: dir_files.matched|int != 0
-
-- name: "import {{ object_type }} from {{ remote_path }}"
-  shell: "miqimport {{ object_type }} {{ additional_params }} {{ remote_path }}"
+- name: attempt to import
+  block:
+    - name: "create {{ remote_path }} on {{ ansible_hostname }}"
+      file:
+        path: "{{ remote_path }}"
+        state: directory
+        mode: 0755
+        recurse: yes
+    - name: "copy the import from localhost {{ local_path }} to {{ ansible_hostname }}"
+      synchronize:
+        mode: push
+        src: "{{ local_path }}"
+        dest: "{{ remote_path }}"
+    - name: "import {{ object_type }} from {{ remote_path }}"
+      shell: "miqimport {{ object_type }} {{ additional_params }} {{ remote_path }}"
   when: dir_files.matched|int != 0

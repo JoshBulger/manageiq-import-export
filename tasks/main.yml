@@ -15,24 +15,10 @@
   args:
     chdir: /opt/cfme-rhconsulting-scripts
     creates:
-    - /var/www/miq/vmdb/lib/tasks/rhconsulting_buttons.rake
-    - /var/www/miq/vmdb/lib/tasks/rhconsulting_miq_ae_datastore.rake
-    - /var/www/miq/vmdb/lib/tasks/rhconsulting_tags.rake
-    - /var/www/miq/vmdb/lib/tasks/rhconsulting_customization_templates.rake
-    - /var/www/miq/vmdb/lib/tasks/rhconsulting_roles.rake
-    - /var/www/miq/vmdb/lib/tasks/rhconsulting_dialogs.rake
-    - /var/www/miq/vmdb/lib/tasks/rhconsulting_service_catalogs.rake
-    - /var/www/miq/vmdb/lib/tasks/rhconsulting_reports.rake
-    - /var/www/miq/vmdb/lib/tasks/rhconsulting_policies.rake
     - /usr/bin/miqexport
     - /usr/bin/miqimport
     - /usr/bin/export-miqdomain
     - /usr/bin/import-miqdomain
 
 - name: "{{ operation }} settings"
-  block:
-    - include_tasks: "{{ operation }}.yml"
-  rescue:
-    - debug:
-      msg: "Failed to run '{{ operation }}', valid operations: import, export."
-
+  include_tasks: "{{ operation }}.yml"

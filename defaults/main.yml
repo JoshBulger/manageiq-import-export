@@ -1,6 +1,6 @@
 # Standards: 1.4
 ---
-object_type: dialogs
-additional_params: ''
+object_type: domain
+additional_params: ManageIQ
 remote_path: /tmp/cfme-export/{{ object_type }}/{{ additional_params }}
-local_path: /tmp/{{ inventory_hostname }}/imports/{{ object_type }}/{{ additional_params }}
+local_path: tmp/{{ inventory_hostname }}/imports/{{ object_type }}/{{ additional_params }}
