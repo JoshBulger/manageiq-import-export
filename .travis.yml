@@ -47,4 +47,4 @@ notifications:
   webhooks: https://galaxy.ansible.com/api/v1/notifications/
   irc:
     channels:
-      - "chat.freenode.net#abraverm-manageiq-ansible-modules"
+      - "chat.freenode.net#abraverm-manageiq-import-export"
