@@ -1,0 +1,63 @@
+#!/usr/bin/env python
+import urllib2, json, ssl, argparse, os
+
+class EnvDefault(argparse.Action):
+    def __init__(self, envvar, required=True, default=None, **kwargs):
+        if envvar:
+            if envvar in os.environ:
+                default = os.environ[envvar]
+        if required and default:
+            required = False
+        super(EnvDefault, self).__init__(default=default, required=required,
+                                         **kwargs)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        setattr(namespace, self.dest, values)
+
+def init_args():
+    parser = argparse.ArgumentParser(description='ManageIQ API collections to Facts')
+    parser.add_argument('--username', action=EnvDefault, envvar='API_USER', default='admin', type=str, help='ManageIQ user name')
+    parser.add_argument('--password', action=EnvDefault, envvar='API_PASS', type=str, default='smartvm', help='ManageIQ password')
+    parser.add_argument('--host', action=EnvDefault, envvar='API_HOST', default='localhost', type=str, help='ManageIQ API host')
+    return parser.parse_args()
+
+def init_auth(username, password, host):
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
+    passman.add_password(None, "https://%s/api" % host, username, password)
+    handler = urllib2.HTTPBasicAuthHandler(passman)
+    opener = urllib2.build_opener(handler, urllib2.HTTPSHandler(context=ctx))
+    opener.addheaders = [('Accept', 'application/json')]
+    urllib2.install_opener(opener)
+
+def api2data(url):
+    response = urllib2.urlopen(url)
+    data = json.loads(response.read())
+    return data
+
+def collections(host):
+    base_url = "https://%s/api" % host
+    root = api2data(base_url)
+    result = {}
+    for collection in root['collections']:
+        name = collection['name']
+        url = "%s/%s?expand=resources" % (base_url, name)
+        raw_data = api2data(url)
+        if 'resources' in raw_data:
+            resources = raw_data['resources']
+            result[name] = {}
+            for resource in resources:
+                if 'name' in resource:
+                    result[name][resource['name'].replace(" ", "_")] = resource
+    return result
+
+def main():
+    args = init_args()
+    init_auth(args.username, args.password, args.host)
+    output = collections(args.host)
+    print(json.dumps(output, sort_keys=True, indent=4, separators=(',', ': ')))
+
+if __name__ == '__main__':
+    main()
