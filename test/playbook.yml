@@ -1,24 +1,35 @@
----
 - hosts: all
   become: true
   tasks:
-    - name: create keys
-      manageiq_key:
-        fetch_key: false
-    - name: create simple internal database
-      manageiq_database:
-        state: present
-    - name: wait for initialization to complete
-      pause:
-        minutes: 3
-    - name: export settings
-      include_role:
-        name: manageiq-import-export
-      vars:
-        operation: export
-    - name: import settings
-      include_role:
-        name: manageiq-import-export
-      vars:
-        operation: import
-
+  - name: create keys
+    manageiq_key:
+      fetch_key: false
+  - name: create simple internal database
+    manageiq_database:
+      state: present
+  - name: wait for initialization to complete
+    pause:
+      minutes: 3
+  - name: export settings
+    include_role:
+      name: manageiq-import-export
+    vars:
+      operation: export
+  - name: import settings
+    include_role:
+      name: manageiq-import-export
+    vars:
+      operation: import
+  - name: import from templates
+    include_role:
+      name: manageiq-import-export
+    vars:
+      operation: import
+      object_type: reports
+      additional_params: ""
+      local_path: templates/reports/
+      remote_path: /tmp/templates/reports/
+      report_title: test
+  - assert:
+      that:
+        "ansible_local.manageiq.reports.test.id >= 0"
