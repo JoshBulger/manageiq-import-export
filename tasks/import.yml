@@ -1,27 +1,32 @@
 # Standards: 1.4
 ---
-- name: list all directories to send
+- name: find Ansible templates (.j2) to process first
   become: false
   local_action:
     module: find
     paths: "{{ local_path }}"
-    file_type: directory
-    patterns: "*"
-  register: dir_files
+    patterns: "*.j2"
+    recurse: true
+  register: templates
 
-- name: attempt to import
-  block:
-    - name: "create {{ remote_path }} on {{ ansible_hostname }}"
-      file:
-        path: "{{ remote_path }}"
-        state: directory
-        mode: 0755
-        recurse: yes
-    - name: "copy the import from localhost {{ local_path }} to {{ ansible_hostname }}"
-      synchronize:
-        mode: push
-        src: "{{ local_path }}"
-        dest: "{{ remote_path }}"
-    - name: "import {{ object_type }} from {{ remote_path }}"
-      shell: "miqimport {{ object_type }} {{ additional_params }} {{ remote_path }}"
-  when: dir_files.matched|int != 0
+- name: process templates
+  become: false
+  local_action:
+    module: template
+    src: "{{ item.path }}"
+    dest: "{{ item.path[:-3] }}"
+  with_items: "{{ templates.files }}"
+
+- name: "create {{ remote_path }} on {{ ansible_hostname }}"
+  file:
+    path: "{{ remote_path }}"
+    state: directory
+    mode: 0755
+    recurse: yes
+- name: "copy the import from localhost {{ local_path }} to {{ ansible_hostname }}"
+  synchronize:
+    mode: push
+    src: "{{ local_path }}"
+    dest: "{{ remote_path }}"
+- name: "import {{ object_type }} from {{ remote_path }}"
+  shell: "miqimport {{ object_type }} {{ additional_params }} {{ remote_path }}"
