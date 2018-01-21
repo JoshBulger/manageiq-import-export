@@ -17,16 +17,23 @@
     dest: "{{ item.path[:-3] }}"
   with_items: "{{ templates.files }}"
 
+- name: "Clean remote path {{ remote_path }}"
+  file:
+    path: "{{ remote_path }}"
+    state: absent
+
 - name: "create {{ remote_path }} on {{ ansible_hostname }}"
   file:
     path: "{{ remote_path }}"
     state: directory
     mode: 0755
     recurse: yes
+
 - name: "copy the import from localhost {{ local_path }} to {{ ansible_hostname }}"
   synchronize:
     mode: push
     src: "{{ local_path }}"
     dest: "{{ remote_path }}"
+
 - name: "import {{ object_type }} from {{ remote_path }}"
   shell: "miqimport {{ object_type }} {{ additional_params }} {{ remote_path }}"
