@@ -17,11 +17,6 @@
     dest: "{{ item.path[:-3] }}"
   with_items: "{{ templates.files }}"
 
-- name: "Clean remote path {{ remote_path }}"
-  file:
-    path: "{{ remote_path }}"
-    state: absent
-
 - name: "create {{ remote_path }} on {{ ansible_hostname }}"
   file:
     path: "{{ remote_path }}"
