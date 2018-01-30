@@ -32,3 +32,8 @@
 
 - name: "import {{ object_type }} from {{ remote_path }}"
   shell: "miqimport {{ object_type }} {{ additional_params }} {{ remote_path }}"
+  register: import_results
+
+- fail:
+    msg: import_results.stderr
+  when: import_results.stderr != ""
