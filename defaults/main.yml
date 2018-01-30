@@ -6,3 +6,4 @@ remote_path: /tmp/cfme-export/{{ object_type }}/{{ additional_params }}
 local_path: tmp/{{ inventory_hostname }}/imports/{{ object_type }}/{{ additional_params }}
 api_username: admin
 api_password: smartvm
+verifications: true

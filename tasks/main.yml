@@ -41,3 +41,8 @@
   environment:
     API_USER: "{{ api_username }}"
     API_PASSWORD: "{{ api_password }}"
+
+- name: "Verify {{ operation }}"
+  assert:
+    that: "{{ item }}"
+  with_items: verifications

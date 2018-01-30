@@ -30,6 +30,5 @@
       local_path: templates/reports/
       remote_path: /tmp/templates/reports/
       report_title: test
-  - assert:
-      that:
-        "ansible_local.manageiq.reports.test.id >= 0"
+      verifications:
+      - "ansible_local.manageiq.reports.test.id >= 0"
