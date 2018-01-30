@@ -7,3 +7,4 @@ local_path: tmp/{{ inventory_hostname }}/imports/{{ object_type }}/{{ additional
 api_username: admin
 api_password: smartvm
 verifications: true
+debug: false

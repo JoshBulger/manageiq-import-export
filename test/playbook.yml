@@ -31,4 +31,4 @@
       remote_path: /tmp/templates/reports/
       report_title: test
       verifications:
-      - "ansible_local.manageiq.reports.test.id >= 0"
+      - ansible_local.manageiq.reports.test.id >= 0

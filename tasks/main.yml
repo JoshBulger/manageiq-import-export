@@ -41,6 +41,12 @@
   environment:
     API_USER: "{{ api_username }}"
     API_PASSWORD: "{{ api_password }}"
+  register: api_facts
+
+- name: "API facts"
+  debug:
+    var: api_facts.ansible_facts.ansible_local.manageiq
+  when: debug
 
 - name: "Verify {{ operation }}"
   assert:
