@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-import urllib2, json, ssl, argparse, os
+import json, argparse, os, requests, urllib3
+urllib3.disable_warnings()
 
 class EnvDefault(argparse.Action):
     def __init__(self, envvar, required=True, default=None, **kwargs):
@@ -21,30 +22,19 @@ def init_args():
     parser.add_argument('--host', action=EnvDefault, envvar='API_HOST', default='localhost', type=str, help='ManageIQ API host')
     return parser.parse_args()
 
-def init_auth(username, password, host):
-    ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
-    passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
-    passman.add_password(None, "https://%s/api" % host, username, password)
-    handler = urllib2.HTTPBasicAuthHandler(passman)
-    opener = urllib2.build_opener(handler, urllib2.HTTPSHandler(context=ctx))
-    opener.addheaders = [('Accept', 'application/json')]
-    urllib2.install_opener(opener)
-
-def api2data(url):
-    response = urllib2.urlopen(url)
-    data = json.loads(response.read())
+def api2data(url, user, password):
+    response = requests.get(url, auth=(user, password), verify=False)
+    data = json.loads(response.text)
     return data
 
-def collections(host):
+def collections(host, user, password):
     base_url = "https://%s/api" % host
-    root = api2data(base_url)
+    root = api2data(base_url, user, password)
     result = {}
     for collection in root['collections']:
         name = collection['name']
         url = "%s/%s?expand=resources" % (base_url, name)
-        raw_data = api2data(url)
+        raw_data = api2data(url, user, password)
         if 'resources' in raw_data:
             resources = raw_data['resources']
             result[name] = {}
@@ -55,8 +45,7 @@ def collections(host):
 
 def main():
     args = init_args()
-    init_auth(args.username, args.password, args.host)
-    output = collections(args.host)
+    output = collections(args.host, args.username, args.password)
     print(json.dumps(output, sort_keys=True, indent=4, separators=(',', ': ')))
 
 if __name__ == '__main__':
