@@ -1,52 +1,16 @@
 # Standards: 1.4
 ---
-- name: Install git
-  yum:
-    name: git
-    state: present
+- name: Initialize
+  include_tasks: init.yml
 
-- name: Get latest files from GitHub
-  git:
-    repo: https://github.com/rhtconsulting/cfme-rhconsulting-scripts.git
-    dest: /opt/cfme-rhconsulting-scripts
-
-- name: Install files to /var/www/miq/vmdb/lib/tasks
-  shell: make clean-install
-  args:
-    chdir: /opt/cfme-rhconsulting-scripts
-    creates:
-    - /usr/bin/miqexport
-    - /usr/bin/miqimport
-    - /usr/bin/export-miqdomain
-    - /usr/bin/import-miqdomain
+- name: Pre-facts
+  include_tasks: facts.yml
 
 - name: "{{ operation }} settings"
   include_tasks: "{{ operation }}.yml"
 
-- name: "create facts.d"
-  file:
-    path: /etc/ansible/facts.d/
-    state: directory
-    recurse: true
-
-- name: "Copy custom facts"
-  copy:
-    src: facts/manageiq.fact
-    dest: /etc/ansible/facts.d/
-    mode: 0755
-
-- name: "Update API facts"
-  setup:
-    gather_timeout: 600
-  environment:
-    API_USER: "{{ api_username }}"
-    API_PASSWORD: "{{ api_password }}"
-  register: api_facts
-
-- name: "API facts"
-  debug:
-    var: api_facts.ansible_facts.ansible_local.manageiq
-  when: debug
+- name: Post-facts
+  include_tasks: facts.yml
 
 - name: "Verify {{ operation }}"
   assert:
