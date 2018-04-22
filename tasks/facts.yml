@@ -1,0 +1,25 @@
+---
+- name: "create facts.d"
+  file:
+    path: /etc/ansible/facts.d/
+    state: directory
+    recurse: true
+
+- name: "Copy custom facts"
+  copy:
+    src: facts/manageiq.fact
+    dest: /etc/ansible/facts.d/
+    mode: 0755
+
+- name: "Update API facts"
+  setup:
+    gather_timeout: 600
+  environment:
+    API_USER: "{{ api_username }}"
+    API_PASSWORD: "{{ api_password }}"
+  register: api_facts
+
+- name: "API facts"
+  debug:
+    var: api_facts.ansible_facts.ansible_local.manageiq
+  when: debug == true
