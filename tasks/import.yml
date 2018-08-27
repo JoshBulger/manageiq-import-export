@@ -25,8 +25,7 @@
     recurse: yes
 
 - name: "copy the import from localhost {{ local_path }} to {{ ansible_hostname }}"
-  synchronize:
-    mode: push
+  copy:
     src: "{{ local_path }}"
     dest: "{{ remote_path }}"
 
